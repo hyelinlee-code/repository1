@@ -1,9 +1,9 @@
 'use client'
 
 import { useCreateBlockNote } from '@blocknote/react'
-import { BlockNoteView } from '@blocknote/react'
+import { BlockNoteView } from '@blocknote/mantine'
 import '@blocknote/core/fonts/inter.css'
-import '@blocknote/react/style.css'
+import '@blocknote/mantine/style.css'
 
 export default function DocumentViewer({ content }) {
   // 읽기 전용 에디터 생성

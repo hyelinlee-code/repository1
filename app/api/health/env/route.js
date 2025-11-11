@@ -13,5 +13,5 @@ export async function GET() {
 		anonKeyLength: anonKey.length || 0,
 		anonKeyLikelyValid: anonKeyValid
 	});
-}*** End Patch  медиҳ json error code block was not valid.  Do not wrap your arguments in triple backticks. Instead, provide the arguments as an object.  Perhaps you forgot to use the function tool signature.  ?>> ***!
+}
 
