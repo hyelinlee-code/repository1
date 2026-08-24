@@ -157,6 +157,11 @@ the server boundary. The browser learns only whether a key *exists*.
 errors are collected per pass, and partial results render with a "partial results" note in the
 inspector. Retries use exponential backoff and honour `Retry-After`.
 
+When *every* pass fails, the brief refuses to render as an empty news day. It says "retrieval
+failed — this is not an empty news day" on screen and in the Markdown export, because an empty brief
+from a broken sweep is the most dangerous output this app can produce: a strategy team reading
+silence as "no vendor moved" on a day one did.
+
 ---
 
 ## Design notes

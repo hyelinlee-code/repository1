@@ -335,3 +335,39 @@ test("markdown export keeps the brief's hierarchy and flags the sample banner", 
     assert.ok(markdown.includes(`## ${section.topic.label}`));
   }
 });
+
+// --- Failure handling ----------------------------------------------------
+
+test("a sample brief is never flagged as a retrieval failure", async () => {
+  const brief = await generateBrief({ preset: "2d", now: MONDAY_2PM_UTC });
+  assert.equal(brief.retrievalFailed, false);
+});
+
+test("when every search pass fails, the brief says so instead of reporting an empty news day", async () => {
+  // Point the client at an unroutable base URL so every pass genuinely fails.
+  const previousKey = process.env.EXA_API_KEY;
+  const previousBase = process.env.EXA_BASE_URL;
+  process.env.EXA_API_KEY = "test-key-not-a-real-credential";
+  process.env.EXA_BASE_URL = "http://127.0.0.1:9";
+
+  try {
+    const brief = await generateBrief({
+      preset: "1d",
+      topicIds: ["pricing-packaging"],
+      cohortIds: ["frontier-labs"],
+      searchBudget: 2,
+      includeEditorNote: false,
+      now: MONDAY_2PM_UTC,
+    });
+    assert.equal(brief.demo, false);
+    assert.equal(brief.retrievalFailed, true, "total failure must be flagged, not rendered as empty");
+    assert.equal(brief.retrieval.succeeded, 0);
+    assert.equal(brief.counts.lead, 0);
+    assert.ok(brief.warnings.length > 0, "each failed pass is reported");
+  } finally {
+    if (previousKey === undefined) delete process.env.EXA_API_KEY;
+    else process.env.EXA_API_KEY = previousKey;
+    if (previousBase === undefined) delete process.env.EXA_BASE_URL;
+    else process.env.EXA_BASE_URL = previousBase;
+  }
+});

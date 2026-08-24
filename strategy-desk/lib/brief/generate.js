@@ -103,10 +103,12 @@ export async function generateBrief(request = {}) {
   const topicsById = Object.fromEntries(topics.map((t) => [t.id, t]));
   const rawItems = [];
   const passErrors = [];
+  let failedPasses = 0;
 
   for (const entry of searchResults) {
     if (!entry || entry.error) {
       if (entry?.error) {
+        failedPasses += 1;
         passErrors.push({
           pass: entry.item?.label ?? "unknown pass",
           message: entry.error.message ?? String(entry.error),
@@ -184,9 +186,21 @@ export async function generateBrief(request = {}) {
     }
   }
 
+  // An empty brief means two very different things depending on why it is
+  // empty. "No vendor moved" is a finding; "every search failed" is an outage,
+  // and reporting the second as the first is how a strategy team gets told
+  // nothing happened on the day something did.
+  const retrievalFailed = passes.length > 0 && failedPasses === passes.length;
+
   return {
     meta,
     editorNote,
+    retrieval: {
+      attempted: passes.length,
+      failed: failedPasses,
+      succeeded: passes.length - failedPasses,
+    },
+    retrievalFailed,
     sections: groupForRender(lead, topics),
     cohortRollup: rollupByCohort(lead),
     watch: watch.slice(0, 20),

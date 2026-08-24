@@ -78,6 +78,14 @@ export function briefToMarkdown(brief) {
     out.push("");
   }
 
+  // An exported empty brief must never be mistaken for a quiet news day.
+  if (brief.retrievalFailed) {
+    out.push(
+      `> **Retrieval failed — treat this brief as not run.** All ${brief.retrieval?.attempted ?? 0} search passes failed, so nothing was retrieved. The absence of items below is not evidence of an absence of vendor activity.`,
+    );
+    out.push("");
+  }
+
   if (brief.editorNote?.text) {
     out.push("## Editor's note");
     out.push(brief.editorNote.text);

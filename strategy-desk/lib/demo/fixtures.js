@@ -198,6 +198,8 @@ export function buildDemoBrief({ meta, topics, vendors, window }) {
       })),
       isSample: true,
     },
+    retrieval: { attempted: 0, failed: 0, succeeded: 0 },
+    retrievalFailed: false,
     sections: groupForRender(lead, topics),
     cohortRollup: rollupByCohort(lead),
     watch,

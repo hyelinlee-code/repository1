@@ -121,7 +121,9 @@ export default function BriefView({
       )}
 
       {/* --- Sections ------------------------------------------------------- */}
-      {empty ? (
+      {brief.retrievalFailed ? (
+        <RetrievalFailed brief={brief} />
+      ) : empty ? (
         <NothingCleared brief={brief} />
       ) : (
         (brief.sections ?? []).map((section) => (
@@ -181,6 +183,44 @@ function Fact({ label, value }) {
       <dt className="meta">{label}</dt>
       <dd className="mt-0.5 font-[family-name:var(--font-mono)] text-sm text-ink">{value}</dd>
     </div>
+  );
+}
+
+/**
+ * Every search pass failed. This must never be shown as "nothing happened" —
+ * an empty brief from a broken sweep is the most dangerous output this app can
+ * produce, so it says plainly that it retrieved nothing at all.
+ */
+function RetrievalFailed({ brief }) {
+  const reasons = [...new Set((brief.warnings ?? []).map((w) => w.message))];
+  return (
+    <section
+      className="card my-8 p-8"
+      style={{ borderColor: "color-mix(in oklab, var(--warn) 45%, transparent)" }}
+    >
+      <p className="meta mb-2" style={{ color: "var(--warn)" }}>
+        Retrieval failed — this is not an empty news day
+      </p>
+      <h3 className="display mb-3 text-xl">
+        All {brief.retrieval?.attempted} search passes failed, so nothing was retrieved.
+      </h3>
+      <p className="mb-4 max-w-xl text-sm leading-relaxed text-ink-muted">
+        Treat this brief as not run. Do not read the absence of items as an absence of vendor
+        activity in the window.
+      </p>
+      {reasons.length > 0 && (
+        <ul className="mb-4 flex flex-col gap-1 font-[family-name:var(--font-mono)] text-xs text-ink-soft">
+          {reasons.slice(0, 3).map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs leading-relaxed text-ink-faint">
+        A <strong>403</strong> usually means the key is invalid or the network blocks{" "}
+        <code className="font-[family-name:var(--font-mono)]">api.exa.ai</code>; a{" "}
+        <strong>429</strong> means the rate limit was hit, so lower the retrieval depth and re-run.
+      </p>
+    </section>
   );
 }
 
